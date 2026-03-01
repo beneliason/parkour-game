@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Frame Viewer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0d0d1f;
+      color: #fff;
+      font-family: monospace;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 48px;
+    }
+    h1 { color: #818cf8; font-size: 20px; letter-spacing: 2px; }
+    .frames {
+      display: flex;
+      gap: 48px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .frame-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    canvas {
+      border: 1px solid #2a2a4a;
+      background: #111128;
+    }
+    .label {
+      color: #818cf8;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .sublabel {
+      color: #4b5563;
+      font-size: 11px;
+    }
+    .animated { outline: 2px solid #f59e0b; }
+  </style>
+</head>
+<body>
+  <h1>Avatar Frame Viewer</h1>
+  <div class="frames" id="frames"></div>
+
+  <script>
+    const img = new Image();
+    img.src = 'avatar.png';
+
+    const FRAMES = [
+      { key: 'run',    label: 'Run 1',       sx: 56,   sy: 76,  sw: 146, sh: 324 },
+      { key: 'run2',   label: 'Run 2',       sx: 235,  sy: 76,  sw: 161, sh: 324 },
+      { key: 'run2b',  label: 'Run 2-B',     sx: 429,  sy: 76,  sw: 159, sh: 324 },
+      { key: 'run2c',  label: 'Run 2-C',     sx: 592,  sy: 76,  sw: 173, sh: 324 },
+      { key: 'jump_l', label: 'Jump launch', sx: 846,  sy: 76,  sw: 179, sh: 324 },
+      { key: 'jump',   label: 'Jump air',    sx: 1067, sy: 76,  sw: 181, sh: 324 },
+      { key: 'jump_f', label: 'Jump fall',   sx: 1293, sy: 76,  sw: 184, sh: 324 },
+      { key: 'idle',   label: 'Idle',        sx: 98,   sy: 529, sw: 150, sh: 268 },
+      { key: 'land',   label: 'Land/Stop',   sx: 377,  sy: 529, sw: 213, sh: 268 },
+      { key: 'crouch', label: 'Crouch',      sx: 727,  sy: 529, sw: 184, sh: 268 },
+      { key: 'climb',  label: 'Climb A',     sx: 1037, sy: 529, sw: 216, sh: 268 },
+      { key: 'climb2', label: 'Climb B',     sx: 1278, sy: 529, sw: 207, sh: 268 },
+    ];
+
+    const SCALE = 0.4; // display at 40% of source size
+
+    img.onload = () => {
+      const container = document.getElementById('frames');
+
+      FRAMES.forEach(f => {
+        const dw = Math.round(f.sw * SCALE);
+        const dh = Math.round(f.sh * SCALE);
+
+        const wrap = document.createElement('div');
+        wrap.className = 'frame-wrap';
+
+        const canvas = document.createElement('canvas');
+        canvas.width  = dw;
+        canvas.height = dh;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, f.sx, f.sy, f.sw, f.sh, 0, 0, dw, dh);
+
+        const label = document.createElement('div');
+        label.className = 'label';
+        label.textContent = f.label;
+
+        const sub = document.createElement('div');
+        sub.className = 'sublabel';
+        sub.textContent = `${f.sw} × ${f.sh} px`;
+
+        wrap.appendChild(canvas);
+        wrap.appendChild(label);
+        wrap.appendChild(sub);
+        container.appendChild(wrap);
+      });
+
+      // Animated preview: cycle run1 → run2
+      const animWrap = document.createElement('div');
+      animWrap.className = 'frame-wrap';
+
+      const animCanvas = document.createElement('canvas');
+      const rf = FRAMES[0];
+      animCanvas.width  = Math.round(200 * SCALE);
+      animCanvas.height = Math.round(rf.sh * SCALE);
+      animCanvas.className = 'animated';
+
+      const animLabel = document.createElement('div');
+      animLabel.className = 'label';
+      animLabel.style.color = '#f59e0b';
+      animLabel.textContent = 'Run (animated)';
+
+      const animSub = document.createElement('div');
+      animSub.className = 'sublabel';
+      animSub.textContent = 'alternates at ~6 Hz';
+
+      animWrap.appendChild(animCanvas);
+      animWrap.appendChild(animLabel);
+      animWrap.appendChild(animSub);
+
+      // Insert animated preview before the static frames
+      container.insertBefore(animWrap, container.firstChild);
+
+      const actx = animCanvas.getContext('2d');
+      let tick = 0;
+      let alt = false;
+      setInterval(() => {
+        const frame = alt ? FRAMES[1] : FRAMES[0];
+        const dw = Math.round(frame.sw * SCALE);
+        const dh = Math.round(frame.sh * SCALE);
+        actx.clearRect(0, 0, animCanvas.width, animCanvas.height);
+        actx.drawImage(img, frame.sx, frame.sy, frame.sw, frame.sh, 0, 0, dw, dh);
+        tick++;
+        if (tick >= 10) { tick = 0; alt = !alt; }
+      }, 1000 / 60);
+    };
+  </script>
+</body>
+</html>

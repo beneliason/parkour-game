@@ -1,0 +1,57 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0a0a12;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  font-family: monospace;
+}
+
+canvas {
+  display: block;
+  border: 1px solid #1e1e3a;
+  box-shadow: 0 0 40px rgba(99, 102, 241, 0.15);
+}
+
+#musicControls {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#muteBtn, #nextTrackBtn {
+  background: #0d0d1f;
+  color: #818cf8;
+  border: 1px solid #2a2a4a;
+  font-family: monospace;
+  font-size: 13px;
+  padding: 5px 10px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background 0.15s, color 0.15s;
+}
+#muteBtn:hover, #nextTrackBtn:hover {
+  background: #1e1b4b;
+  color: #c7d2fe;
+}
+#muteBtn.muted {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+#trackName {
+  color: #818cf8;
+  font-family: monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  opacity: 0.8;
+}
