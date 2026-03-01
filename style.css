@@ -7,11 +7,17 @@
 body {
   background: #0a0a12;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   font-family: monospace;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 canvas {
@@ -27,6 +33,7 @@ canvas {
   display: flex;
   align-items: center;
   gap: 8px;
+  z-index: 10;
 }
 
 #muteBtn, #nextTrackBtn {
@@ -54,4 +61,64 @@ canvas {
   font-size: 12px;
   letter-spacing: 1px;
   opacity: 0.8;
+}
+
+/* ─── Touch Controls ─────────────────────────────────────────────────── */
+#touchControls {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 20px;
+  justify-content: space-between;
+  align-items: flex-end;
+  pointer-events: none;
+  z-index: 20;
+}
+
+#touchLeft, #touchRight {
+  display: flex;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.touch-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid rgba(129, 140, 248, 0.5);
+  background: rgba(13, 13, 31, 0.7);
+  color: rgba(129, 140, 248, 0.85);
+  font-family: monospace;
+  font-size: 22px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+.touch-btn:active, .touch-btn.active {
+  background: rgba(79, 70, 229, 0.45);
+  border-color: rgba(129, 140, 248, 0.9);
+}
+
+.touch-jump {
+  width: 80px;
+  height: 80px;
+  font-size: 15px;
+  border-color: rgba(245, 158, 11, 0.5);
+  color: rgba(245, 158, 11, 0.85);
+}
+.touch-jump:active, .touch-jump.active {
+  background: rgba(245, 158, 11, 0.3);
+  border-color: rgba(245, 158, 11, 0.9);
+}
+
+/* Show touch controls on devices that support touch */
+@media (pointer: coarse) {
+  #touchControls {
+    display: flex;
+  }
 }

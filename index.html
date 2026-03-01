@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Parkour Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -12,6 +12,15 @@
     <button id="muteBtn" title="Toggle music (M)">♪ ON</button>
     <span id="trackName">Rooftop Run</span>
     <button id="nextTrackBtn" title="Next track (N)">next ›</button>
+  </div>
+  <div id="touchControls">
+    <div id="touchLeft">
+      <button class="touch-btn" id="btnLeft">&#9664;</button>
+      <button class="touch-btn" id="btnRight">&#9654;</button>
+    </div>
+    <div id="touchRight">
+      <button class="touch-btn touch-jump" id="btnJump">JUMP</button>
+    </div>
   </div>
   <script src="game.js"></script>
 </body>

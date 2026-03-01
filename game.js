@@ -35,6 +35,89 @@ const keys = {};
 document.addEventListener('keydown', e => { keys[e.code] = true; });
 document.addEventListener('keyup',   e => { keys[e.code] = false; });
 
+// ─── Touch support ──────────────────────────────────────────────────────────
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+function resizeCanvas() {
+  const ratio = 960 / 540;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  let w, h;
+  if (vw / vh > ratio) {
+    h = vh;
+    w = h * ratio;
+  } else {
+    w = vw;
+    h = w / ratio;
+  }
+  canvas.style.width  = Math.floor(w) + 'px';
+  canvas.style.height = Math.floor(h) + 'px';
+}
+
+if (isTouchDevice) {
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  // Prevent scrolling / pull-to-refresh on the canvas and controls
+  document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+
+  const btnLeft  = document.getElementById('btnLeft');
+  const btnRight = document.getElementById('btnRight');
+  const btnJump  = document.getElementById('btnJump');
+
+  function bindHold(btn, keyCode) {
+    btn.addEventListener('touchstart', e => {
+      e.preventDefault();
+      keys[keyCode] = true;
+      btn.classList.add('active');
+    }, { passive: false });
+
+    btn.addEventListener('touchend', e => {
+      e.preventDefault();
+      keys[keyCode] = false;
+      btn.classList.remove('active');
+    }, { passive: false });
+
+    btn.addEventListener('touchcancel', e => {
+      keys[keyCode] = false;
+      btn.classList.remove('active');
+    });
+  }
+
+  bindHold(btnLeft,  'ArrowLeft');
+  bindHold(btnRight, 'ArrowRight');
+
+  // Jump button: trigger jump on touchstart (like keydown with !e.repeat)
+  btnJump.addEventListener('touchstart', e => {
+    e.preventDefault();
+    btnJump.classList.add('active');
+    if (gameState.phase === 'playing') player.jump();
+    // Also init music on first touch
+    music.init?.();
+  }, { passive: false });
+
+  btnJump.addEventListener('touchend', e => {
+    e.preventDefault();
+    btnJump.classList.remove('active');
+  }, { passive: false });
+
+  btnJump.addEventListener('touchcancel', () => {
+    btnJump.classList.remove('active');
+  });
+
+  // Tap canvas to restart when on allDone screen
+  canvas.addEventListener('touchstart', e => {
+    if (gameState.phase === 'allDone') {
+      e.preventDefault();
+      gameState.lives = 3;
+      loadLevel(0);
+    }
+  }, { passive: false });
+
+  // Init music on first touch anywhere
+  document.addEventListener('touchstart', () => { music.init?.(); }, { once: true });
+}
+
 // ─── Particles ───────────────────────────────────────────────────────────────
 const particles = [];
 
@@ -860,7 +943,9 @@ function drawHUD() {
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.font      = '13px monospace';
   ctx.textAlign = 'left';
-  ctx.fillText('Move: A/D or ←/→  |  Jump: Space/W/↑  |  Restart: R  |  M: Mute', 12, canvas.height - 12);
+  if (!isTouchDevice) {
+    ctx.fillText('Move: A/D or ←/→  |  Jump: Space/W/↑  |  Restart: R  |  M: Mute', 12, canvas.height - 12);
+  }
 
   if (music.isMuted()) {
     ctx.fillStyle = 'rgba(239,68,68,0.85)';
@@ -953,7 +1038,7 @@ function drawAllDoneScreen() {
   ctx.fillText('All levels complete!', canvas.width / 2, canvas.height / 2 + 20);
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.font      = '16px monospace';
-  ctx.fillText('Press R to play again from Level 1', canvas.width / 2, canvas.height / 2 + 52);
+  ctx.fillText(isTouchDevice ? 'Tap to play again from Level 1' : 'Press R to play again from Level 1', canvas.width / 2, canvas.height / 2 + 52);
   ctx.textAlign = 'left';
 }
 
@@ -1164,7 +1249,8 @@ const music = (function () {
   }
 
   document.addEventListener('keydown', init, { once: true });
-  return { toggle, nextTrack, isMuted: () => muted, trackName: () => SONGS[songIdx].name };
+  document.addEventListener('touchstart', init, { once: true });
+  return { toggle, nextTrack, init, isMuted: () => muted, trackName: () => SONGS[songIdx].name };
 })();
 
 const muteBtn      = document.getElementById('muteBtn');
